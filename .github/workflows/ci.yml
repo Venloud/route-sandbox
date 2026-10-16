@@ -1,0 +1,25 @@
+name: ci
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Unit tests
+        run: python -m unittest discover -s tests -t . -v
+      - name: Changelog updated (PRs only)
+        if: github.event_name == 'pull_request'
+        run: |
+          if ! git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qx CHANGELOG.md; then
+            echo "::error::CHANGELOG.md must be updated in every pull request (add an entry under ## Unreleased)."
+            exit 1
+          fi
