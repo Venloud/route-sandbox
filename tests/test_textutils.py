@@ -18,6 +18,7 @@ class TruncateTests(unittest.TestCase):
         text = "  keep\t\n"
         self.assertEqual(truncate(text, len(text)), text)
         self.assertEqual(truncate(text, len(text) + 1), text)
+        self.assertEqual(truncate("x\u00e9z", 3), "x\u00e9z")
 
     def test_truncation(self):
         self.assert_truncated("x", 1, "x", "...")
@@ -28,7 +29,7 @@ class TruncateTests(unittest.TestCase):
         self.assert_truncated("abcdef", 3, "abc", "")
         self.assert_truncated("abc", 0, "")
         self.assert_truncated("", 0, "")
-        self.assert_truncated("xéz", 3, "xe…")
+        self.assert_truncated("xe\u0301z", 3, "x\u00e9z")
 
     def test_negative_max_len(self):
         with self.assertRaises(ValueError):
